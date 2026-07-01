@@ -16,9 +16,8 @@
     --sage:#8B9574;
     --rose-tint:#F5E8EA;
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box;margin:0;padding:0;}
   body{
-    margin:0;
     background:var(--bg);
     color:var(--ink);
     font-family:'Apple SD Gothic Neo','Malgun Gothic',-apple-system,sans-serif;
@@ -27,14 +26,16 @@
   .wrap{
     max-width:480px;
     margin:0 auto;
-    padding:28px 20px 60px;
+    padding:0 0 60px;
   }
+
+  /* 헤더 */
   .header{
     text-align:center;
-    margin-bottom:28px;
+    padding:28px 20px 20px;
   }
   .header .eyebrow{
-    font-size:12px;
+    font-size:11px;
     letter-spacing:2px;
     color:var(--rose);
     text-transform:uppercase;
@@ -43,30 +44,48 @@
   .header h1{
     font-family:'Noto Serif KR','Nanum Myeongjo',serif;
     font-weight:600;
-    font-size:26px;
-    margin:0 0 6px;
+    font-size:24px;
     color:var(--rose-deep);
+    margin-bottom:4px;
   }
   .header p{
-    font-size:13px;
+    font-size:12px;
     color:var(--ink-soft);
-    margin:0;
   }
-  .divider{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin:22px 0;
-    color:var(--rose);
-    opacity:.55;
+
+  /* 탭 */
+  .tab-bar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border-bottom:2px solid var(--line);
+    margin-bottom:20px;
+    position:sticky;
+    top:0;
+    background:var(--bg);
+    z-index:10;
   }
-  .divider::before,.divider::after{
-    content:"";
-    flex:1;
-    height:1px;
-    background:var(--line);
+  .tab-btn{
+    padding:13px;
+    border:none;
+    background:none;
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    margin-bottom:-2px;
+    transition:color .15s;
   }
-  .divider span{font-size:11px;letter-spacing:1px;}
+  .tab-btn.active{
+    color:var(--rose-deep);
+    border-bottom-color:var(--rose-deep);
+  }
+
+  /* 탭 패널 */
+  .tab-panel{ display:none; padding:0 20px; }
+  .tab-panel.active{ display:block; }
+
+  /* 폼 카드 */
   .card{
     background:var(--card);
     border:1px solid var(--line);
@@ -74,7 +93,7 @@
     padding:22px 20px;
     margin-bottom:16px;
   }
-  .field{margin-bottom:18px;}
+  .field{ margin-bottom:18px; }
   .field label{
     display:block;
     font-size:13px;
@@ -143,10 +162,7 @@
     font-size:12px;
     color:var(--ink-soft);
   }
-  .row-btn{
-    display:flex;
-    gap:8px;
-  }
+  .row-btn{ display:flex; gap:8px; }
   .row-btn button{
     flex:1;
     padding:9px;
@@ -157,13 +173,9 @@
     color:var(--ink-soft);
     cursor:pointer;
   }
-  .row-btn button:active{background:#f2eee9;}
-  .manual-row{
-    display:flex;
-    gap:8px;
-    margin-top:8px;
-  }
-  .manual-row input{flex:1;}
+  .row-btn button:active{ background:#f2eee9; }
+  .manual-row{ display:flex; gap:8px; margin-top:8px; }
+  .manual-row input{ flex:1; }
   .manual-row button{
     padding:0 14px;
     border:1px solid var(--line);
@@ -185,47 +197,56 @@
     cursor:pointer;
     margin-top:6px;
   }
-  .submit-btn:disabled{
-    background:#cbb6ba;
-    cursor:not-allowed;
-  }
+  .submit-btn:disabled{ background:#cbb6ba; cursor:not-allowed; }
   .status-msg{
     text-align:center;
     font-size:13px;
     margin-top:12px;
     min-height:18px;
   }
-  .status-msg.ok{color:var(--sage);}
-  .status-msg.err{color:#B8474A;}
+  .status-msg.ok{ color:var(--sage); }
+  .status-msg.err{ color:#B8474A; }
+
+  /* 요약 */
   .summary-bar{
     display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
     margin-bottom:16px;
   }
   .summary-box{
     background:var(--card);
     border:1px solid var(--line);
     border-radius:14px;
-    padding:14px;
+    padding:12px;
     text-align:center;
   }
   .summary-box .n{
-    font-size:19px;
+    font-size:17px;
     font-weight:700;
     color:var(--rose-deep);
   }
   .summary-box .l{
-    font-size:11px;
+    font-size:10px;
     color:var(--ink-soft);
     margin-top:2px;
   }
-  .list-title{
-    font-size:14px;
-    font-weight:700;
-    margin:0 0 10px 4px;
-    color:var(--ink);
+
+  /* 새로고침 */
+  .refresh-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:8px;
   }
+  .refresh-row button{
+    border:none;
+    background:none;
+    color:var(--rose);
+    font-size:12px;
+    cursor:pointer;
+  }
+
+  /* 리스트 카드 */
   .entry-wrap{
     position:relative;
     border-radius:12px;
@@ -234,9 +255,7 @@
   }
   .entry-actions{
     position:absolute;
-    top:0;
-    right:0;
-    bottom:0;
+    top:0; right:0; bottom:0;
     display:flex;
   }
   .entry-actions button{
@@ -247,32 +266,50 @@
     color:#fff;
     cursor:pointer;
   }
-  .entry-actions .act-delete{background:#B8474A;}
+  .entry-actions .act-delete{ background:#B8474A; }
   .entry{
     position:relative;
     background:var(--card);
     border:1px solid var(--line);
     border-radius:12px;
-    padding:13px 16px;
+    padding:12px 14px;
     display:flex;
-    justify-content:space-between;
     align-items:center;
+    gap:12px;
     touch-action:pan-y;
     transition:transform .18s ease;
   }
-  .entry .left .name{
+  .entry .seq{
+    font-size:11px;
+    font-weight:700;
+    color:var(--rose);
+    background:var(--rose-tint);
+    border-radius:6px;
+    width:26px;
+    height:26px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .entry .mid{ flex:1; min-width:0; }
+  .entry .mid .name{
     font-size:14px;
     font-weight:700;
     color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
-  .entry .left .sub{
-    font-size:12px;
+  .entry .mid .sub{
+    font-size:11px;
     color:var(--ink-soft);
     margin-top:2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
-  .entry .right{
-    text-align:right;
-  }
+  .entry .right{ text-align:right; flex-shrink:0; }
   .entry .right .amt{
     font-size:14px;
     font-weight:700;
@@ -287,19 +324,7 @@
     text-align:center;
     color:var(--ink-soft);
     font-size:13px;
-    padding:30px 0;
-  }
-  .refresh-row{
-    display:flex;
-    justify-content:flex-end;
-    margin-bottom:8px;
-  }
-  .refresh-row button{
-    border:none;
-    background:none;
-    color:var(--rose);
-    font-size:12px;
-    cursor:pointer;
+    padding:40px 0;
   }
   .config-warn{
     background:#FDF3D6;
@@ -311,6 +336,21 @@
     margin-bottom:16px;
     line-height:1.5;
   }
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:20px 0 14px;
+    color:var(--rose);
+    opacity:.5;
+  }
+  .divider::before,.divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+  .divider span{ font-size:11px; letter-spacing:1px; }
 </style>
 </head>
 <body>
@@ -322,95 +362,107 @@
     <p>축하해주셔서 감사합니다 · 편하게 입력해주세요</p>
   </div>
 
-  <div id="configWarn" class="config-warn" style="display:none;">
-    아직 구글시트 연동 주소가 설정되지 않았어요. 코드 상단 <b>SHEET_API_URL</b> 값을 배포된 웹앱 URL로 바꿔주세요.
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabRegister">✏️ 등록하기</button>
+    <button class="tab-btn" id="tabList">📋 전체 명단</button>
   </div>
 
-  <div class="card">
-    <div class="field">
-      <label>이름</label>
-      <input type="text" id="inputName" placeholder="이름을 입력해주세요">
+  <!-- 등록 탭 -->
+  <div class="tab-panel active" id="panelRegister">
+
+    <div id="configWarn" class="config-warn" style="display:none;">
+      구글시트 연동 주소가 설정되지 않았어요.
     </div>
 
-    <div class="field">
-      <label>소속 · 비고 <span class="opt">(선택)</span></label>
-      <input type="text" id="inputAffil" placeholder="예: 신랑 사촌, OO회사 등">
+    <div class="card">
+      <div class="field">
+        <label>이름</label>
+        <input type="text" id="inputName" placeholder="이름을 입력해주세요">
+      </div>
+      <div class="field">
+        <label>소속 · 비고 <span class="opt">(선택)</span></label>
+        <input type="text" id="inputAffil" placeholder="예: 신랑 사촌, OO회사 등">
+      </div>
+      <div class="field">
+        <label>축의금</label>
+        <div class="amount-display">
+          <span class="lbl">현재 금액</span>
+          <span class="num" id="amountOut">0원</span>
+        </div>
+        <div class="btn-grid">
+          <div class="chip" data-amt="10000">+1만</div>
+          <div class="chip" data-amt="50000">+5만</div>
+          <div class="chip" data-amt="100000">+10만</div>
+          <div class="chip" data-amt="200000">+20만</div>
+          <div class="chip" data-amt="300000">+30만</div>
+          <div class="chip" data-amt="500000">+50만</div>
+        </div>
+        <div class="row-btn">
+          <button type="button" id="amtReset">초기화</button>
+        </div>
+        <div class="manual-row">
+          <input type="number" id="amtManual" placeholder="직접 입력 (원)">
+          <button type="button" id="amtManualBtn">적용</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>식권</label>
+        <div class="ticket-display">
+          <span class="lbl">현재 매수</span>
+          <span class="num" id="ticketOut">0장</span>
+        </div>
+        <div class="btn-grid">
+          <div class="chip" data-tix="1">+1장</div>
+          <div class="chip" data-tix="2">+2장</div>
+          <div class="chip" data-tix="3">+3장</div>
+        </div>
+        <div class="row-btn">
+          <button type="button" id="tixReset">초기화</button>
+        </div>
+        <div class="manual-row">
+          <input type="number" id="tixManual" placeholder="직접 입력 (장)">
+          <button type="button" id="tixManualBtn">적용</button>
+        </div>
+      </div>
+      <button class="submit-btn" id="submitBtn">등록하기</button>
+      <div class="status-msg" id="statusMsg"></div>
     </div>
 
-    <div class="field">
-      <label>축의금</label>
-      <div class="amount-display">
-        <span class="lbl">현재 금액</span>
-        <span class="num" id="amountOut">0원</span>
-      </div>
-      <div class="btn-grid">
-        <div class="chip" data-amt="10000">+1만</div>
-        <div class="chip" data-amt="50000">+5만</div>
-        <div class="chip" data-amt="100000">+10만</div>
-        <div class="chip" data-amt="200000">+20만</div>
-        <div class="chip" data-amt="300000">+30만</div>
-        <div class="chip" data-amt="500000">+50만</div>
-      </div>
-      <div class="row-btn">
-        <button type="button" id="amtReset">초기화</button>
-      </div>
-      <div class="manual-row">
-        <input type="number" id="amtManual" placeholder="직접 입력 (원)">
-        <button type="button" id="amtManualBtn">적용</button>
-      </div>
-    </div>
+    <div class="divider"><span>최근 등록</span></div>
+    <div id="recentWrap"><div class="empty">아직 등록된 명단이 없어요</div></div>
 
-    <div class="field">
-      <label>식권</label>
-      <div class="ticket-display">
-        <span class="lbl">현재 매수</span>
-        <span class="num" id="ticketOut">0장</span>
-      </div>
-      <div class="btn-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="chip" data-tix="1">+1장</div>
-        <div class="chip" data-tix="2">+2장</div>
-        <div class="chip" data-tix="3">+3장</div>
-      </div>
-      <div class="row-btn">
-        <button type="button" id="tixReset">초기화</button>
-      </div>
-      <div class="manual-row">
-        <input type="number" id="tixManual" placeholder="직접 입력 (장)">
-        <button type="button" id="tixManualBtn">적용</button>
-      </div>
-    </div>
-
-    <button class="submit-btn" id="submitBtn">등록하기</button>
-    <div class="status-msg" id="statusMsg"></div>
   </div>
 
-  <div class="divider"><span>등록된 명단</span></div>
+  <!-- 전체 명단 탭 -->
+  <div class="tab-panel" id="panelList">
 
-  <div class="summary-bar">
-    <div class="summary-box">
-      <div class="n" id="sumCount">0명</div>
-      <div class="l">등록 인원</div>
+    <div class="summary-bar">
+      <div class="summary-box">
+        <div class="n" id="sumCount">0명</div>
+        <div class="l">등록 인원</div>
+      </div>
+      <div class="summary-box">
+        <div class="n" id="sumAmount">0원</div>
+        <div class="l">총 축의금</div>
+      </div>
+      <div class="summary-box">
+        <div class="n" id="sumTix">0장</div>
+        <div class="l">총 식권</div>
+      </div>
     </div>
-    <div class="summary-box">
-      <div class="n" id="sumAmount">0원</div>
-      <div class="l">총 축의금</div>
+
+    <div class="refresh-row">
+      <button type="button" id="refreshBtn">↻ 새로고침</button>
     </div>
-  </div>
 
-  <div class="refresh-row">
-    <button type="button" id="refreshBtn">↻ 새로고침</button>
-  </div>
+    <div id="listWrap"><div class="empty">아직 등록된 명단이 없어요</div></div>
 
-  <div id="listWrap">
-    <div class="empty">아직 등록된 명단이 없어요</div>
   </div>
 
 </div>
 
 <script>
-  // ====== 여기에 배포한 구글 앱스 스크립트 웹앱 URL을 붙여넣어주세요 ======
   const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxDge_jvvU0Ct5iCOoF1lO4cBdkx8S1rtR4I53xQNArAL8ohtbMdME_JKyvaTOE2P1wDg/exec";
-  // =====================================================================
 
   const MAX_AMOUNT = 10000000;
   const MAX_TICKETS = 100;
@@ -420,139 +472,190 @@
   let openEntry = null;
   let currentData = [];
 
-  const amountOut = document.getElementById('amountOut');
-  const ticketOut = document.getElementById('ticketOut');
-  const statusMsg = document.getElementById('statusMsg');
-  const submitBtn = document.getElementById('submitBtn');
-  const listWrap = document.getElementById('listWrap');
-  const sumCount = document.getElementById('sumCount');
-  const sumAmount = document.getElementById('sumAmount');
-  const configWarn = document.getElementById('configWarn');
-  const inputName = document.getElementById('inputName');
-  const inputAffil = document.getElementById('inputAffil');
+  const amountOut    = document.getElementById('amountOut');
+  const ticketOut    = document.getElementById('ticketOut');
+  const statusMsg    = document.getElementById('statusMsg');
+  const submitBtn    = document.getElementById('submitBtn');
+  const listWrap     = document.getElementById('listWrap');
+  const recentWrap   = document.getElementById('recentWrap');
+  const sumCount     = document.getElementById('sumCount');
+  const sumAmount    = document.getElementById('sumAmount');
+  const sumTix       = document.getElementById('sumTix');
+  const inputName    = document.getElementById('inputName');
+  const inputAffil   = document.getElementById('inputAffil');
 
   if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0) {
-    configWarn.style.display = 'block';
+    document.getElementById('configWarn').style.display = 'block';
   }
 
-  function fmtWon(n){ return n.toLocaleString('ko-KR') + '원'; }
+  // 탭 전환
+  document.getElementById('tabRegister').addEventListener('click', () => switchTab('register'));
+  document.getElementById('tabList').addEventListener('click', () => {
+    switchTab('list');
+    loadList();
+  });
 
-  function renderAmount(){
-    amountOut.textContent = fmtWon(amount);
-  }
-  function renderTicket(){
-    ticketOut.textContent = tickets.toLocaleString('ko-KR') + '장';
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    if (name === 'register') {
+      document.getElementById('tabRegister').classList.add('active');
+      document.getElementById('panelRegister').classList.add('active');
+    } else {
+      document.getElementById('tabList').classList.add('active');
+      document.getElementById('panelList').classList.add('active');
+    }
   }
 
-  document.querySelectorAll('[data-amt]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      amount = Math.min(MAX_AMOUNT, amount + parseInt(el.dataset.amt,10));
+  function fmtWon(n){ return Number(n).toLocaleString('ko-KR') + '원'; }
+
+  function renderAmount(){ amountOut.textContent = fmtWon(amount); }
+  function renderTicket(){ ticketOut.textContent = tickets.toLocaleString('ko-KR') + '장'; }
+
+  document.querySelectorAll('[data-amt]').forEach(el => {
+    el.addEventListener('click', () => {
+      amount = Math.min(MAX_AMOUNT, amount + parseInt(el.dataset.amt, 10));
       renderAmount();
     });
   });
-  document.querySelectorAll('[data-tix]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      tickets = Math.min(MAX_TICKETS, tickets + parseInt(el.dataset.tix,10));
+  document.querySelectorAll('[data-tix]').forEach(el => {
+    el.addEventListener('click', () => {
+      tickets = Math.min(MAX_TICKETS, tickets + parseInt(el.dataset.tix, 10));
       renderTicket();
     });
   });
 
-  document.getElementById('amtReset').addEventListener('click', ()=>{ amount = 0; renderAmount(); });
-  document.getElementById('tixReset').addEventListener('click', ()=>{ tickets = 0; renderTicket(); });
+  document.getElementById('amtReset').addEventListener('click', () => { amount = 0; renderAmount(); });
+  document.getElementById('tixReset').addEventListener('click', () => { tickets = 0; renderTicket(); });
 
-  document.getElementById('amtManualBtn').addEventListener('click', ()=>{
+  document.getElementById('amtManualBtn').addEventListener('click', () => {
     const v = parseInt(document.getElementById('amtManual').value, 10);
-    if (!isNaN(v) && v >= 0) {
-      amount = Math.min(MAX_AMOUNT, v);
-      renderAmount();
-      document.getElementById('amtManual').value = '';
-    }
+    if (!isNaN(v) && v >= 0) { amount = Math.min(MAX_AMOUNT, v); renderAmount(); document.getElementById('amtManual').value = ''; }
   });
-  document.getElementById('tixManualBtn').addEventListener('click', ()=>{
+  document.getElementById('tixManualBtn').addEventListener('click', () => {
     const v = parseInt(document.getElementById('tixManual').value, 10);
-    if (!isNaN(v) && v >= 0) {
-      tickets = Math.min(MAX_TICKETS, v);
-      renderTicket();
-      document.getElementById('tixManual').value = '';
-    }
+    if (!isNaN(v) && v >= 0) { tickets = Math.min(MAX_TICKETS, v); renderTicket(); document.getElementById('tixManual').value = ''; }
   });
 
-  function setStatus(msg, type){
+  function setStatus(msg, type) {
     statusMsg.textContent = msg;
     statusMsg.className = 'status-msg' + (type ? ' ' + type : '');
   }
 
-  async function submitEntry(){
+  async function submitEntry() {
     const name = inputName.value.trim();
     const affil = inputAffil.value.trim();
-
-    if (!name){
-      setStatus('이름을 입력해주세요', 'err');
-      return;
-    }
-    if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0){
-      setStatus('구글시트 연동 주소가 아직 설정되지 않았어요', 'err');
-      return;
-    }
+    if (!name) { setStatus('이름을 입력해주세요', 'err'); return; }
 
     submitBtn.disabled = true;
     setStatus('등록 중...', '');
-
-    try{
+    try {
       await fetch(SHEET_API_URL, {
         method: 'POST',
-        body: JSON.stringify({ action:'create', name, affiliation: affil, amount, tickets })
+        body: JSON.stringify({ action: 'create', name, affiliation: affil, amount, tickets })
       });
-
       setStatus('등록되었습니다 🌿', 'ok');
-      inputName.value = '';
-      inputAffil.value = '';
+      inputName.value = ''; inputAffil.value = '';
       amount = 0; tickets = 0;
       renderAmount(); renderTicket();
       await loadList();
-    }catch(err){
+    } catch(err) {
       setStatus('등록에 실패했어요. 다시 시도해주세요', 'err');
-    }finally{
+    } finally {
       submitBtn.disabled = false;
     }
   }
 
   submitBtn.addEventListener('click', submitEntry);
 
-  async function loadList(){
-    if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0) return;
-    try{
-      const res = await fetch(SHEET_API_URL, { method:'GET' });
+  async function loadList() {
+    try {
+      const res = await fetch(SHEET_API_URL, { method: 'GET' });
       const data = await res.json();
       currentData = Array.isArray(data) ? data : [];
-      renderList(currentData);
-    }catch(err){
-      // 조회 실패시 조용히 무시 (등록은 계속 가능)
-    }
+      renderSummary(currentData);
+      renderFullList(currentData);
+      renderRecent(currentData);
+    } catch(err) {}
   }
 
-  function closeOpenEntry(){
-    if (openEntry) {
-      openEntry.style.transform = 'translateX(0)';
-      openEntry = null;
-    }
+  function renderSummary(data) {
+    let totalAmt = 0, totalTix = 0;
+    data.forEach(r => { totalAmt += Number(r.amount)||0; totalTix += Number(r.tickets)||0; });
+    sumCount.textContent = data.length.toLocaleString('ko-KR') + '명';
+    sumAmount.textContent = (totalAmt / 10000).toLocaleString('ko-KR') + '만원';
+    sumTix.textContent = totalTix.toLocaleString('ko-KR') + '장';
   }
 
-  function attachSwipe(entryEl, actionsWidth){
+  // 등록탭 하단 최근 5건
+  function renderRecent(data) {
+    const recent = data.slice(0, 5);
+    if (!recent.length) {
+      recentWrap.innerHTML = '<div class="empty">아직 등록된 명단이 없어요</div>';
+      return;
+    }
+    recentWrap.innerHTML = '';
+    recent.forEach(row => recentWrap.appendChild(buildEntryEl(row)));
+  }
+
+  // 전체 명단 탭
+  function renderFullList(data) {
+    openEntry = null;
+    if (!data.length) {
+      listWrap.innerHTML = '<div class="empty">아직 등록된 명단이 없어요</div>';
+      return;
+    }
+    listWrap.innerHTML = '';
+    data.forEach(row => listWrap.appendChild(buildEntryEl(row)));
+  }
+
+  function buildEntryEl(row) {
+    const amt  = Number(row.amount) || 0;
+    const tix  = Number(row.tickets) || 0;
+    const affil = row.affiliation || '';
+    const seq  = row.seq || '-';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'entry-wrap';
+    wrap.innerHTML = `
+      <div class="entry-actions">
+        <button type="button" class="act-delete">삭제</button>
+      </div>
+      <div class="entry">
+        <div class="seq">${escapeHtml(String(seq))}</div>
+        <div class="mid">
+          <div class="name">${escapeHtml(row.name || '')}</div>
+          <div class="sub">${escapeHtml(affil)}</div>
+        </div>
+        <div class="right">
+          <div class="amt">${fmtWon(amt)}</div>
+          <div class="tix">식권 ${tix}장</div>
+        </div>
+      </div>
+    `;
+    const entryEl = wrap.querySelector('.entry');
+    attachSwipe(entryEl, 80);
+    wrap.querySelector('.act-delete').addEventListener('click', () => deleteEntry(row));
+    return wrap;
+  }
+
+  function closeOpenEntry() {
+    if (openEntry) { openEntry.style.transform = 'translateX(0)'; openEntry = null; }
+  }
+
+  function attachSwipe(entryEl, actionsWidth) {
     let startX = 0, currentX = 0, dragging = false;
-
-    function onStart(x){
+    function onStart(x) {
       if (openEntry && openEntry !== entryEl) closeOpenEntry();
-      startX = x;
-      dragging = true;
+      startX = x; dragging = true;
       entryEl.style.transition = 'none';
     }
-    function onMove(x){
+    function onMove(x) {
       if (!dragging) return;
       currentX = Math.min(0, Math.max(-actionsWidth, x - startX));
       entryEl.style.transform = 'translateX(' + currentX + 'px)';
     }
-    function onEnd(){
+    function onEnd() {
       if (!dragging) return;
       dragging = false;
       entryEl.style.transition = 'transform .18s ease';
@@ -565,88 +668,33 @@
       }
       currentX = 0;
     }
-
-    entryEl.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive:true });
-    entryEl.addEventListener('touchmove', e => onMove(e.touches[0].clientX), { passive:true });
+    entryEl.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+    entryEl.addEventListener('touchmove',  e => onMove(e.touches[0].clientX),  { passive: true });
     entryEl.addEventListener('touchend', onEnd);
-
     entryEl.addEventListener('mousedown', e => { onStart(e.clientX); e.preventDefault(); });
     window.addEventListener('mousemove', e => onMove(e.clientX));
     window.addEventListener('mouseup', onEnd);
   }
 
-  async function deleteEntry(row){
+  async function deleteEntry(row) {
     if (!confirm(row.name + '님 명단을 삭제할까요?')) return;
-
-    // 화면에서 즉시 제거 (서버 응답을 기다리지 않고 바로 사라지게)
     currentData = currentData.filter(r => r.timestamp !== row.timestamp);
-    renderList(currentData);
-
-    try{
+    renderSummary(currentData);
+    renderFullList(currentData);
+    renderRecent(currentData);
+    try {
       await fetch(SHEET_API_URL, {
-        method:'POST',
-        body: JSON.stringify({ action:'delete', timestamp: row.timestamp })
+        method: 'POST',
+        body: JSON.stringify({ action: 'delete', timestamp: row.timestamp })
       });
-    }catch(err){
+    } catch(err) {
       alert('삭제 처리 중 오류가 발생했어요. 새로고침 후 다시 확인해주세요');
       await loadList();
     }
   }
 
-  function renderList(data){
-    openEntry = null;
-    if (!Array.isArray(data) || data.length === 0){
-      listWrap.innerHTML = '<div class="empty">아직 등록된 명단이 없어요</div>';
-      sumCount.textContent = '0명';
-      sumAmount.textContent = '0원';
-      return;
-    }
-
-    let totalAmt = 0;
-    data.forEach(row=>{
-      totalAmt += Number(row.amount) || 0;
-    });
-
-    listWrap.innerHTML = '';
-    data.forEach(row=>{
-      const amt = Number(row.amount) || 0;
-      const tix = Number(row.tickets) || 0;
-      const affil = row.affiliation ? row.affiliation : '';
-
-      const wrap = document.createElement('div');
-      wrap.className = 'entry-wrap';
-      wrap.innerHTML = `
-        <div class="entry-actions">
-          <button type="button" class="act-delete">삭제</button>
-        </div>
-        <div class="entry">
-          <div class="left">
-            <div class="name">${escapeHtml(row.name || '')}</div>
-            <div class="sub">${escapeHtml(affil)}</div>
-          </div>
-          <div class="right">
-            <div class="amt">${fmtWon(amt)}</div>
-            <div class="tix">식권 ${tix}장</div>
-          </div>
-        </div>
-      `;
-
-      const entryEl = wrap.querySelector('.entry');
-      attachSwipe(entryEl, 80);
-      wrap.querySelector('.act-delete').addEventListener('click', ()=> deleteEntry(row));
-
-      listWrap.appendChild(wrap);
-    });
-
-    sumCount.textContent = data.length.toLocaleString('ko-KR') + '명';
-    sumAmount.textContent = fmtWon(totalAmt);
-  }
-
-  function escapeHtml(str){
-    return String(str)
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;');
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   document.getElementById('refreshBtn').addEventListener('click', loadList);
@@ -655,6 +703,5 @@
   renderTicket();
   loadList();
 </script>
-
 </body>
 </html>
