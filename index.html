@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>축의금 등록</title>
+<style>
+  :root{
+    --bg:#FAF6F1;
+    --card:#FFFFFF;
+    --ink:#3A3532;
+    --ink-soft:#7A736C;
+    --line:#E8DFD6;
+    --rose:#B8677A;
+    --rose-deep:#8F4B5C;
+    --sage:#8B9574;
+    --rose-tint:#F5E8EA;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Apple SD Gothic Neo','Malgun Gothic',-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:480px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+  .header{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .header .eyebrow{
+    font-size:12px;
+    letter-spacing:2px;
+    color:var(--rose);
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .header h1{
+    font-family:'Noto Serif KR','Nanum Myeongjo',serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0 0 6px;
+    color:var(--rose-deep);
+  }
+  .header p{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:22px 0;
+    color:var(--rose);
+    opacity:.55;
+  }
+  .divider::before,.divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+  .divider span{font-size:11px;letter-spacing:1px;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 20px;
+    margin-bottom:16px;
+  }
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:8px;
+    color:var(--ink);
+  }
+  .field label .opt{
+    font-weight:400;
+    color:var(--ink-soft);
+    font-size:12px;
+  }
+  input[type=text],input[type=number]{
+    width:100%;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    font-size:15px;
+    color:var(--ink);
+    background:#fff;
+  }
+  input[type=text]:focus,input[type=number]:focus{
+    outline:none;
+    border-color:var(--rose);
+  }
+  .btn-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .chip{
+    padding:12px 4px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+    transition:transform .08s;
+  }
+  .chip:active{transform:scale(0.95);background:var(--rose-tint);}
+  .amount-display,.ticket-display{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    background:var(--rose-tint);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:10px;
+  }
+  .amount-display .num{
+    font-size:22px;
+    font-weight:700;
+    color:var(--rose-deep);
+  }
+  .ticket-display .num{
+    font-size:22px;
+    font-weight:700;
+    color:var(--sage);
+  }
+  .amount-display .lbl,.ticket-display .lbl{
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .row-btn{
+    display:flex;
+    gap:8px;
+  }
+  .row-btn button{
+    flex:1;
+    padding:9px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:8px;
+    font-size:12px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .row-btn button:active{background:#f2eee9;}
+  .manual-row{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+  }
+  .manual-row input{flex:1;}
+  .manual-row button{
+    padding:0 14px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:8px;
+    font-size:12px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .submit-btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    background:var(--rose-deep);
+    color:#fff;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .submit-btn:disabled{
+    background:#cbb6ba;
+    cursor:not-allowed;
+  }
+  .status-msg{
+    text-align:center;
+    font-size:13px;
+    margin-top:12px;
+    min-height:18px;
+  }
+  .status-msg.ok{color:var(--sage);}
+  .status-msg.err{color:#B8474A;}
+  .summary-bar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .summary-box{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    text-align:center;
+  }
+  .summary-box .n{
+    font-size:19px;
+    font-weight:700;
+    color:var(--rose-deep);
+  }
+  .summary-box .l{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .list-title{
+    font-size:14px;
+    font-weight:700;
+    margin:0 0 10px 4px;
+    color:var(--ink);
+  }
+  .entry{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:13px 16px;
+    margin-bottom:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .entry .left .name{
+    font-size:14px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .entry .left .sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .entry .right{
+    text-align:right;
+  }
+  .entry .right .amt{
+    font-size:14px;
+    font-weight:700;
+    color:var(--rose-deep);
+  }
+  .entry .right .tix{
+    font-size:11px;
+    color:var(--sage);
+    margin-top:2px;
+  }
+  .empty{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:30px 0;
+  }
+  .refresh-row{
+    display:flex;
+    justify-content:flex-end;
+    margin-bottom:8px;
+  }
+  .refresh-row button{
+    border:none;
+    background:none;
+    color:var(--rose);
+    font-size:12px;
+    cursor:pointer;
+  }
+  .config-warn{
+    background:#FDF3D6;
+    border:1px solid #E9D28A;
+    color:#7A5E12;
+    font-size:12px;
+    padding:10px 14px;
+    border-radius:10px;
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="eyebrow">Wedding Gift Book</div>
+    <h1>축의금 명단</h1>
+    <p>축하해주셔서 감사합니다 · 편하게 입력해주세요</p>
+  </div>
+
+  <div id="configWarn" class="config-warn" style="display:none;">
+    아직 구글시트 연동 주소가 설정되지 않았어요. 코드 상단 <b>SHEET_API_URL</b> 값을 배포된 웹앱 URL로 바꿔주세요.
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>이름</label>
+      <input type="text" id="inputName" placeholder="이름을 입력해주세요">
+    </div>
+
+    <div class="field">
+      <label>소속 · 비고 <span class="opt">(선택)</span></label>
+      <input type="text" id="inputAffil" placeholder="예: 신랑 사촌, OO회사 등">
+    </div>
+
+    <div class="field">
+      <label>축의금</label>
+      <div class="amount-display">
+        <span class="lbl">현재 금액</span>
+        <span class="num" id="amountOut">0원</span>
+      </div>
+      <div class="btn-grid">
+        <div class="chip" data-amt="10000">+1만</div>
+        <div class="chip" data-amt="50000">+5만</div>
+        <div class="chip" data-amt="100000">+10만</div>
+        <div class="chip" data-amt="200000">+20만</div>
+        <div class="chip" data-amt="300000">+30만</div>
+        <div class="chip" data-amt="500000">+50만</div>
+      </div>
+      <div class="row-btn">
+        <button type="button" id="amtReset">초기화</button>
+      </div>
+      <div class="manual-row">
+        <input type="number" id="amtManual" placeholder="직접 입력 (원)">
+        <button type="button" id="amtManualBtn">적용</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>식권</label>
+      <div class="ticket-display">
+        <span class="lbl">현재 매수</span>
+        <span class="num" id="ticketOut">0장</span>
+      </div>
+      <div class="btn-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="chip" data-tix="1">+1장</div>
+        <div class="chip" data-tix="2">+2장</div>
+        <div class="chip" data-tix="3">+3장</div>
+      </div>
+      <div class="row-btn">
+        <button type="button" id="tixReset">초기화</button>
+      </div>
+      <div class="manual-row">
+        <input type="number" id="tixManual" placeholder="직접 입력 (장)">
+        <button type="button" id="tixManualBtn">적용</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn">등록하기</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <div class="divider"><span>등록된 명단</span></div>
+
+  <div class="summary-bar">
+    <div class="summary-box">
+      <div class="n" id="sumCount">0명</div>
+      <div class="l">등록 인원</div>
+    </div>
+    <div class="summary-box">
+      <div class="n" id="sumAmount">0원</div>
+      <div class="l">총 축의금</div>
+    </div>
+  </div>
+
+  <div class="refresh-row">
+    <button type="button" id="refreshBtn">↻ 새로고침</button>
+  </div>
+
+  <div id="listWrap">
+    <div class="empty">아직 등록된 명단이 없어요</div>
+  </div>
+
+</div>
+
+<script>
+  // ====== 여기에 배포한 구글 앱스 스크립트 웹앱 URL을 붙여넣어주세요 ======
+  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxDge_jvvU0Ct5iCOoF1lO4cBdkx8S1rtR4I53xQNArAL8ohtbMdME_JKyvaTOE2P1wDg/exec";
+  // =====================================================================
+
+  const MAX_AMOUNT = 10000000;
+  const MAX_TICKETS = 100;
+
+  let amount = 0;
+  let tickets = 0;
+
+  const amountOut = document.getElementById('amountOut');
+  const ticketOut = document.getElementById('ticketOut');
+  const statusMsg = document.getElementById('statusMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const listWrap = document.getElementById('listWrap');
+  const sumCount = document.getElementById('sumCount');
+  const sumAmount = document.getElementById('sumAmount');
+  const configWarn = document.getElementById('configWarn');
+
+  if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0) {
+    configWarn.style.display = 'block';
+  }
+
+  function fmtWon(n){ return n.toLocaleString('ko-KR') + '원'; }
+
+  function renderAmount(){
+    amountOut.textContent = fmtWon(amount);
+  }
+  function renderTicket(){
+    ticketOut.textContent = tickets.toLocaleString('ko-KR') + '장';
+  }
+
+  document.querySelectorAll('[data-amt]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      amount = Math.min(MAX_AMOUNT, amount + parseInt(el.dataset.amt,10));
+      renderAmount();
+    });
+  });
+  document.querySelectorAll('[data-tix]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      tickets = Math.min(MAX_TICKETS, tickets + parseInt(el.dataset.tix,10));
+      renderTicket();
+    });
+  });
+
+  document.getElementById('amtReset').addEventListener('click', ()=>{ amount = 0; renderAmount(); });
+  document.getElementById('tixReset').addEventListener('click', ()=>{ tickets = 0; renderTicket(); });
+
+  document.getElementById('amtManualBtn').addEventListener('click', ()=>{
+    const v = parseInt(document.getElementById('amtManual').value, 10);
+    if (!isNaN(v) && v >= 0) {
+      amount = Math.min(MAX_AMOUNT, v);
+      renderAmount();
+      document.getElementById('amtManual').value = '';
+    }
+  });
+  document.getElementById('tixManualBtn').addEventListener('click', ()=>{
+    const v = parseInt(document.getElementById('tixManual').value, 10);
+    if (!isNaN(v) && v >= 0) {
+      tickets = Math.min(MAX_TICKETS, v);
+      renderTicket();
+      document.getElementById('tixManual').value = '';
+    }
+  });
+
+  function setStatus(msg, type){
+    statusMsg.textContent = msg;
+    statusMsg.className = 'status-msg' + (type ? ' ' + type : '');
+  }
+
+  async function submitEntry(){
+    const name = document.getElementById('inputName').value.trim();
+    const affil = document.getElementById('inputAffil').value.trim();
+
+    if (!name){
+      setStatus('이름을 입력해주세요', 'err');
+      return;
+    }
+    if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0){
+      setStatus('구글시트 연동 주소가 아직 설정되지 않았어요', 'err');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    setStatus('등록 중...', '');
+
+    try{
+      await fetch(SHEET_API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ name, affiliation: affil, amount, tickets })
+      });
+
+      setStatus('등록되었습니다 🌿', 'ok');
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputAffil').value = '';
+      amount = 0; tickets = 0;
+      renderAmount(); renderTicket();
+      await loadList();
+    }catch(err){
+      setStatus('등록에 실패했어요. 다시 시도해주세요', 'err');
+    }finally{
+      submitBtn.disabled = false;
+    }
+  }
+
+  submitBtn.addEventListener('click', submitEntry);
+
+  async function loadList(){
+    if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0) return;
+    try{
+      const res = await fetch(SHEET_API_URL, { method:'GET' });
+      const data = await res.json();
+      renderList(data);
+    }catch(err){
+      // 조회 실패시 조용히 무시 (등록은 계속 가능)
+    }
+  }
+
+  function renderList(data){
+    if (!Array.isArray(data) || data.length === 0){
+      listWrap.innerHTML = '<div class="empty">아직 등록된 명단이 없어요</div>';
+      sumCount.textContent = '0명';
+      sumAmount.textContent = '0원';
+      return;
+    }
+
+    let totalAmt = 0, totalTix = 0;
+    const html = data.map(row=>{
+      const amt = Number(row.amount) || 0;
+      const tix = Number(row.tickets) || 0;
+      totalAmt += amt;
+      totalTix += tix;
+      const affil = row.affiliation ? row.affiliation : '';
+      return `
+        <div class="entry">
+          <div class="left">
+            <div class="name">${escapeHtml(row.name || '')}</div>
+            <div class="sub">${escapeHtml(affil)}</div>
+          </div>
+          <div class="right">
+            <div class="amt">${fmtWon(amt)}</div>
+            <div class="tix">식권 ${tix}장</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    listWrap.innerHTML = html;
+    sumCount.textContent = data.length.toLocaleString('ko-KR') + '명';
+    sumAmount.textContent = fmtWon(totalAmt);
+  }
+
+  function escapeHtml(str){
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', loadList);
+
+  renderAmount();
+  renderTicket();
+  loadList();
+</script>
+
+</body>
+</html>
