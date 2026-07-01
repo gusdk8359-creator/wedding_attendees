@@ -197,30 +197,6 @@
   }
   .status-msg.ok{color:var(--sage);}
   .status-msg.err{color:#B8474A;}
-  .cancel-edit{
-    display:none;
-    text-align:center;
-    margin-top:8px;
-  }
-  .cancel-edit button{
-    border:none;
-    background:none;
-    color:var(--ink-soft);
-    font-size:12px;
-    text-decoration:underline;
-    cursor:pointer;
-  }
-  .editing-badge{
-    display:none;
-    background:var(--rose-tint);
-    color:var(--rose-deep);
-    font-size:12px;
-    font-weight:700;
-    padding:8px 12px;
-    border-radius:8px;
-    margin-bottom:14px;
-    text-align:center;
-  }
   .summary-bar{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -264,14 +240,13 @@
     display:flex;
   }
   .entry-actions button{
-    width:64px;
+    width:80px;
     border:none;
     font-size:12px;
     font-weight:700;
     color:#fff;
     cursor:pointer;
   }
-  .entry-actions .act-edit{background:var(--sage);}
   .entry-actions .act-delete{background:#B8474A;}
   .entry{
     position:relative;
@@ -352,7 +327,6 @@
   </div>
 
   <div class="card">
-    <div class="editing-badge" id="editingBadge">✏️ 명단 수정 중</div>
     <div class="field">
       <label>이름</label>
       <input type="text" id="inputName" placeholder="이름을 입력해주세요">
@@ -407,9 +381,6 @@
     </div>
 
     <button class="submit-btn" id="submitBtn">등록하기</button>
-    <div class="cancel-edit" id="cancelEditRow">
-      <button type="button" id="cancelEditBtn">수정 취소</button>
-    </div>
     <div class="status-msg" id="statusMsg"></div>
   </div>
 
@@ -446,8 +417,8 @@
 
   let amount = 0;
   let tickets = 0;
-  let editingTimestamp = null;
   let openEntry = null;
+  let currentData = [];
 
   const amountOut = document.getElementById('amountOut');
   const ticketOut = document.getElementById('ticketOut');
@@ -457,8 +428,6 @@
   const sumCount = document.getElementById('sumCount');
   const sumAmount = document.getElementById('sumAmount');
   const configWarn = document.getElementById('configWarn');
-  const editingBadge = document.getElementById('editingBadge');
-  const cancelEditRow = document.getElementById('cancelEditRow');
   const inputName = document.getElementById('inputName');
   const inputAffil = document.getElementById('inputAffil');
 
@@ -513,35 +482,6 @@
     statusMsg.className = 'status-msg' + (type ? ' ' + type : '');
   }
 
-  function startEdit(row){
-    editingTimestamp = row.timestamp;
-    inputName.value = row.name || '';
-    inputAffil.value = row.affiliation || '';
-    amount = Number(row.amount) || 0;
-    tickets = Number(row.tickets) || 0;
-    renderAmount(); renderTicket();
-    submitBtn.textContent = '수정 완료';
-    editingBadge.style.display = 'block';
-    cancelEditRow.style.display = 'block';
-    setStatus('', '');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    closeOpenEntry();
-  }
-
-  function cancelEdit(){
-    editingTimestamp = null;
-    inputName.value = '';
-    inputAffil.value = '';
-    amount = 0; tickets = 0;
-    renderAmount(); renderTicket();
-    submitBtn.textContent = '등록하기';
-    editingBadge.style.display = 'none';
-    cancelEditRow.style.display = 'none';
-    setStatus('', '');
-  }
-
-  document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
-
   async function submitEntry(){
     const name = inputName.value.trim();
     const affil = inputAffil.value.trim();
@@ -556,28 +496,22 @@
     }
 
     submitBtn.disabled = true;
-    setStatus(editingTimestamp ? '수정 중...' : '등록 중...', '');
-
-    const payload = editingTimestamp
-      ? { action:'update', timestamp: editingTimestamp, name, affiliation: affil, amount, tickets }
-      : { action:'create', name, affiliation: affil, amount, tickets };
+    setStatus('등록 중...', '');
 
     try{
       await fetch(SHEET_API_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ action:'create', name, affiliation: affil, amount, tickets })
       });
 
-      setStatus(editingTimestamp ? '수정되었습니다 🌿' : '등록되었습니다 🌿', 'ok');
-      const wasEditing = !!editingTimestamp;
-      cancelEdit();
-      if (wasEditing) {
-        // cancelEdit already resets fields; keep the success message visible briefly
-        setStatus('수정되었습니다 🌿', 'ok');
-      }
+      setStatus('등록되었습니다 🌿', 'ok');
+      inputName.value = '';
+      inputAffil.value = '';
+      amount = 0; tickets = 0;
+      renderAmount(); renderTicket();
       await loadList();
     }catch(err){
-      setStatus('처리에 실패했어요. 다시 시도해주세요', 'err');
+      setStatus('등록에 실패했어요. 다시 시도해주세요', 'err');
     }finally{
       submitBtn.disabled = false;
     }
@@ -590,7 +524,8 @@
     try{
       const res = await fetch(SHEET_API_URL, { method:'GET' });
       const data = await res.json();
-      renderList(data);
+      currentData = Array.isArray(data) ? data : [];
+      renderList(currentData);
     }catch(err){
       // 조회 실패시 조용히 무시 (등록은 계속 가능)
     }
@@ -642,14 +577,19 @@
 
   async function deleteEntry(row){
     if (!confirm(row.name + '님 명단을 삭제할까요?')) return;
+
+    // 화면에서 즉시 제거 (서버 응답을 기다리지 않고 바로 사라지게)
+    currentData = currentData.filter(r => r.timestamp !== row.timestamp);
+    renderList(currentData);
+
     try{
       await fetch(SHEET_API_URL, {
         method:'POST',
         body: JSON.stringify({ action:'delete', timestamp: row.timestamp })
       });
-      await loadList();
     }catch(err){
-      alert('삭제에 실패했어요. 다시 시도해주세요');
+      alert('삭제 처리 중 오류가 발생했어요. 새로고침 후 다시 확인해주세요');
+      await loadList();
     }
   }
 
@@ -662,10 +602,9 @@
       return;
     }
 
-    let totalAmt = 0, totalTix = 0;
+    let totalAmt = 0;
     data.forEach(row=>{
       totalAmt += Number(row.amount) || 0;
-      totalTix += Number(row.tickets) || 0;
     });
 
     listWrap.innerHTML = '';
@@ -678,7 +617,6 @@
       wrap.className = 'entry-wrap';
       wrap.innerHTML = `
         <div class="entry-actions">
-          <button type="button" class="act-edit">수정</button>
           <button type="button" class="act-delete">삭제</button>
         </div>
         <div class="entry">
@@ -694,8 +632,7 @@
       `;
 
       const entryEl = wrap.querySelector('.entry');
-      attachSwipe(entryEl, 128);
-      wrap.querySelector('.act-edit').addEventListener('click', ()=> startEdit(row));
+      attachSwipe(entryEl, 80);
       wrap.querySelector('.act-delete').addEventListener('click', ()=> deleteEntry(row));
 
       listWrap.appendChild(wrap);
