@@ -572,7 +572,7 @@
     try {
       const res = await fetch(SHEET_API_URL, { method: 'GET' });
       const data = await res.json();
-      currentData = Array.isArray(data) ? data : [];
+      currentData = Array.isArray(data) ? data.sort((a,b) => (Number(a.seq)||0) - (Number(b.seq)||0)) : [];
       renderSummary(currentData);
       renderFullList(currentData);
       renderRecent(currentData);
@@ -595,7 +595,7 @@
       return;
     }
     recentWrap.innerHTML = '';
-    recent.forEach(row => recentWrap.appendChild(buildEntryEl(row)));
+    recent.forEach((row, i) => recentWrap.appendChild(buildEntryEl(row, i + 1)));
   }
 
   // 전체 명단 탭
@@ -606,10 +606,10 @@
       return;
     }
     listWrap.innerHTML = '';
-    data.forEach(row => listWrap.appendChild(buildEntryEl(row)));
+    data.forEach((row, i) => listWrap.appendChild(buildEntryEl(row, i + 1)));
   }
 
-  function buildEntryEl(row) {
+  function buildEntryEl(row, displaySeq) {
     const amt  = Number(row.amount) || 0;
     const tix  = Number(row.tickets) || 0;
     const affil = row.affiliation || '';
@@ -622,7 +622,7 @@
         <button type="button" class="act-delete">삭제</button>
       </div>
       <div class="entry">
-        <div class="seq">${escapeHtml(String(seq))}</div>
+        <div class="seq">${displaySeq}</div>
         <div class="mid">
           <div class="name">${escapeHtml(row.name || '')}</div>
           <div class="sub">${escapeHtml(affil)}</div>
