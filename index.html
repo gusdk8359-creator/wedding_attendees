@@ -197,6 +197,30 @@
   }
   .status-msg.ok{color:var(--sage);}
   .status-msg.err{color:#B8474A;}
+  .cancel-edit{
+    display:none;
+    text-align:center;
+    margin-top:8px;
+  }
+  .cancel-edit button{
+    border:none;
+    background:none;
+    color:var(--ink-soft);
+    font-size:12px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+  .editing-badge{
+    display:none;
+    background:var(--rose-tint);
+    color:var(--rose-deep);
+    font-size:12px;
+    font-weight:700;
+    padding:8px 12px;
+    border-radius:8px;
+    margin-bottom:14px;
+    text-align:center;
+  }
   .summary-bar{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -226,15 +250,40 @@
     margin:0 0 10px 4px;
     color:var(--ink);
   }
+  .entry-wrap{
+    position:relative;
+    border-radius:12px;
+    margin-bottom:8px;
+    overflow:hidden;
+  }
+  .entry-actions{
+    position:absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    display:flex;
+  }
+  .entry-actions button{
+    width:64px;
+    border:none;
+    font-size:12px;
+    font-weight:700;
+    color:#fff;
+    cursor:pointer;
+  }
+  .entry-actions .act-edit{background:var(--sage);}
+  .entry-actions .act-delete{background:#B8474A;}
   .entry{
+    position:relative;
     background:var(--card);
     border:1px solid var(--line);
     border-radius:12px;
     padding:13px 16px;
-    margin-bottom:8px;
     display:flex;
     justify-content:space-between;
     align-items:center;
+    touch-action:pan-y;
+    transition:transform .18s ease;
   }
   .entry .left .name{
     font-size:14px;
@@ -303,6 +352,7 @@
   </div>
 
   <div class="card">
+    <div class="editing-badge" id="editingBadge">✏️ 명단 수정 중</div>
     <div class="field">
       <label>이름</label>
       <input type="text" id="inputName" placeholder="이름을 입력해주세요">
@@ -357,6 +407,9 @@
     </div>
 
     <button class="submit-btn" id="submitBtn">등록하기</button>
+    <div class="cancel-edit" id="cancelEditRow">
+      <button type="button" id="cancelEditBtn">수정 취소</button>
+    </div>
     <div class="status-msg" id="statusMsg"></div>
   </div>
 
@@ -393,6 +446,8 @@
 
   let amount = 0;
   let tickets = 0;
+  let editingTimestamp = null;
+  let openEntry = null;
 
   const amountOut = document.getElementById('amountOut');
   const ticketOut = document.getElementById('ticketOut');
@@ -402,6 +457,10 @@
   const sumCount = document.getElementById('sumCount');
   const sumAmount = document.getElementById('sumAmount');
   const configWarn = document.getElementById('configWarn');
+  const editingBadge = document.getElementById('editingBadge');
+  const cancelEditRow = document.getElementById('cancelEditRow');
+  const inputName = document.getElementById('inputName');
+  const inputAffil = document.getElementById('inputAffil');
 
   if (!SHEET_API_URL || SHEET_API_URL.indexOf('PASTE_YOUR') === 0) {
     configWarn.style.display = 'block';
@@ -454,9 +513,38 @@
     statusMsg.className = 'status-msg' + (type ? ' ' + type : '');
   }
 
+  function startEdit(row){
+    editingTimestamp = row.timestamp;
+    inputName.value = row.name || '';
+    inputAffil.value = row.affiliation || '';
+    amount = Number(row.amount) || 0;
+    tickets = Number(row.tickets) || 0;
+    renderAmount(); renderTicket();
+    submitBtn.textContent = '수정 완료';
+    editingBadge.style.display = 'block';
+    cancelEditRow.style.display = 'block';
+    setStatus('', '');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeOpenEntry();
+  }
+
+  function cancelEdit(){
+    editingTimestamp = null;
+    inputName.value = '';
+    inputAffil.value = '';
+    amount = 0; tickets = 0;
+    renderAmount(); renderTicket();
+    submitBtn.textContent = '등록하기';
+    editingBadge.style.display = 'none';
+    cancelEditRow.style.display = 'none';
+    setStatus('', '');
+  }
+
+  document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
   async function submitEntry(){
-    const name = document.getElementById('inputName').value.trim();
-    const affil = document.getElementById('inputAffil').value.trim();
+    const name = inputName.value.trim();
+    const affil = inputAffil.value.trim();
 
     if (!name){
       setStatus('이름을 입력해주세요', 'err');
@@ -468,22 +556,28 @@
     }
 
     submitBtn.disabled = true;
-    setStatus('등록 중...', '');
+    setStatus(editingTimestamp ? '수정 중...' : '등록 중...', '');
+
+    const payload = editingTimestamp
+      ? { action:'update', timestamp: editingTimestamp, name, affiliation: affil, amount, tickets }
+      : { action:'create', name, affiliation: affil, amount, tickets };
 
     try{
       await fetch(SHEET_API_URL, {
         method: 'POST',
-        body: JSON.stringify({ name, affiliation: affil, amount, tickets })
+        body: JSON.stringify(payload)
       });
 
-      setStatus('등록되었습니다 🌿', 'ok');
-      document.getElementById('inputName').value = '';
-      document.getElementById('inputAffil').value = '';
-      amount = 0; tickets = 0;
-      renderAmount(); renderTicket();
+      setStatus(editingTimestamp ? '수정되었습니다 🌿' : '등록되었습니다 🌿', 'ok');
+      const wasEditing = !!editingTimestamp;
+      cancelEdit();
+      if (wasEditing) {
+        // cancelEdit already resets fields; keep the success message visible briefly
+        setStatus('수정되었습니다 🌿', 'ok');
+      }
       await loadList();
     }catch(err){
-      setStatus('등록에 실패했어요. 다시 시도해주세요', 'err');
+      setStatus('처리에 실패했어요. 다시 시도해주세요', 'err');
     }finally{
       submitBtn.disabled = false;
     }
@@ -502,7 +596,65 @@
     }
   }
 
+  function closeOpenEntry(){
+    if (openEntry) {
+      openEntry.style.transform = 'translateX(0)';
+      openEntry = null;
+    }
+  }
+
+  function attachSwipe(entryEl, actionsWidth){
+    let startX = 0, currentX = 0, dragging = false;
+
+    function onStart(x){
+      if (openEntry && openEntry !== entryEl) closeOpenEntry();
+      startX = x;
+      dragging = true;
+      entryEl.style.transition = 'none';
+    }
+    function onMove(x){
+      if (!dragging) return;
+      currentX = Math.min(0, Math.max(-actionsWidth, x - startX));
+      entryEl.style.transform = 'translateX(' + currentX + 'px)';
+    }
+    function onEnd(){
+      if (!dragging) return;
+      dragging = false;
+      entryEl.style.transition = 'transform .18s ease';
+      if (currentX < -actionsWidth / 2) {
+        entryEl.style.transform = 'translateX(-' + actionsWidth + 'px)';
+        openEntry = entryEl;
+      } else {
+        entryEl.style.transform = 'translateX(0)';
+        if (openEntry === entryEl) openEntry = null;
+      }
+      currentX = 0;
+    }
+
+    entryEl.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive:true });
+    entryEl.addEventListener('touchmove', e => onMove(e.touches[0].clientX), { passive:true });
+    entryEl.addEventListener('touchend', onEnd);
+
+    entryEl.addEventListener('mousedown', e => { onStart(e.clientX); e.preventDefault(); });
+    window.addEventListener('mousemove', e => onMove(e.clientX));
+    window.addEventListener('mouseup', onEnd);
+  }
+
+  async function deleteEntry(row){
+    if (!confirm(row.name + '님 명단을 삭제할까요?')) return;
+    try{
+      await fetch(SHEET_API_URL, {
+        method:'POST',
+        body: JSON.stringify({ action:'delete', timestamp: row.timestamp })
+      });
+      await loadList();
+    }catch(err){
+      alert('삭제에 실패했어요. 다시 시도해주세요');
+    }
+  }
+
   function renderList(data){
+    openEntry = null;
     if (!Array.isArray(data) || data.length === 0){
       listWrap.innerHTML = '<div class="empty">아직 등록된 명단이 없어요</div>';
       sumCount.textContent = '0명';
@@ -511,13 +663,24 @@
     }
 
     let totalAmt = 0, totalTix = 0;
-    const html = data.map(row=>{
+    data.forEach(row=>{
+      totalAmt += Number(row.amount) || 0;
+      totalTix += Number(row.tickets) || 0;
+    });
+
+    listWrap.innerHTML = '';
+    data.forEach(row=>{
       const amt = Number(row.amount) || 0;
       const tix = Number(row.tickets) || 0;
-      totalAmt += amt;
-      totalTix += tix;
       const affil = row.affiliation ? row.affiliation : '';
-      return `
+
+      const wrap = document.createElement('div');
+      wrap.className = 'entry-wrap';
+      wrap.innerHTML = `
+        <div class="entry-actions">
+          <button type="button" class="act-edit">수정</button>
+          <button type="button" class="act-delete">삭제</button>
+        </div>
         <div class="entry">
           <div class="left">
             <div class="name">${escapeHtml(row.name || '')}</div>
@@ -529,9 +692,15 @@
           </div>
         </div>
       `;
-    }).join('');
 
-    listWrap.innerHTML = html;
+      const entryEl = wrap.querySelector('.entry');
+      attachSwipe(entryEl, 128);
+      wrap.querySelector('.act-edit').addEventListener('click', ()=> startEdit(row));
+      wrap.querySelector('.act-delete').addEventListener('click', ()=> deleteEntry(row));
+
+      listWrap.appendChild(wrap);
+    });
+
     sumCount.textContent = data.length.toLocaleString('ko-KR') + '명';
     sumAmount.textContent = fmtWon(totalAmt);
   }
