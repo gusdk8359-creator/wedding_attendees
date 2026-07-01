@@ -682,15 +682,12 @@
 
   async function deleteEntry(row) {
     if (!confirm(row.name + '님 명단을 삭제할까요?')) return;
-    currentData = currentData.filter(r => r.timestamp !== row.timestamp);
+    currentData = currentData.filter(r => r.seq !== row.seq);
     renderSummary(currentData);
     renderFullList(currentData);
     renderRecent(currentData);
     try {
-      const params = new URLSearchParams({
-        action: 'delete',
-        timestamp: row.timestamp
-      });
+      const params = new URLSearchParams({ action: 'delete', seq: row.seq });
       await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET' });
     } catch(err) {
       alert('삭제 처리 중 오류가 발생했어요. 새로고침 후 다시 확인해주세요');
