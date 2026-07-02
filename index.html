@@ -557,7 +557,7 @@
         amount: amount,
         tickets: tickets
       });
-      await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET' });
+      await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
       setStatus('등록되었습니다 🌿', 'ok');
       inputName.value = ''; inputAffil.value = '';
       amount = 0; tickets = 0;
@@ -688,7 +688,7 @@
     renderRecent(currentData);
     try {
       const params = new URLSearchParams({ action: 'delete', seq: row.seq });
-      await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET' });
+      await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
     } catch(err) {
       alert('삭제 처리 중 오류가 발생했어요. 새로고침 후 다시 확인해주세요');
       await loadList();
