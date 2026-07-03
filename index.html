@@ -207,6 +207,77 @@
   .status-msg.ok{ color:var(--sage); }
   .status-msg.err{ color:#B8474A; }
 
+  /* PDF 내보내기 버튼 */
+  .pdf-btn{
+    width:100%;
+    padding:12px;
+    border:1px solid var(--rose-deep);
+    border-radius:10px;
+    background:#fff;
+    color:var(--rose-deep);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    margin-bottom:14px;
+  }
+  .pdf-btn:active{ background:var(--rose-tint); }
+
+  /* 인쇄 전용 명부 */
+  #printArea{ display:none; }
+
+  @media print {
+    body > .wrap { display:none; }
+    #printArea {
+      display:block !important;
+      font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+      padding:20mm 15mm;
+      color:#000;
+    }
+    .print-title{
+      text-align:center;
+      font-size:22pt;
+      font-weight:700;
+      letter-spacing:6px;
+      margin-bottom:6mm;
+    }
+    .print-date{
+      text-align:right;
+      font-size:9pt;
+      margin-bottom:8mm;
+      color:#444;
+    }
+    .print-table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:10pt;
+    }
+    .print-table th{
+      background:#555;
+      color:#fff;
+      padding:6px 4px;
+      text-align:center;
+      border:1px solid #333;
+      letter-spacing:2px;
+      font-size:10pt;
+    }
+    .print-table td{
+      padding:7px 6px;
+      border:1px solid #888;
+      text-align:center;
+      vertical-align:middle;
+    }
+    .print-table td.td-name{ text-align:left; padding-left:10px; }
+    .print-table td.td-affil{ text-align:left; padding-left:8px; font-size:9pt; color:#333; }
+    .print-table td.td-amt{ text-align:right; padding-right:10px; }
+    .print-table tr:nth-child(even) td{ background:#f9f9f9; }
+    .print-summary{
+      margin-top:6mm;
+      text-align:right;
+      font-size:10pt;
+      color:#333;
+    }
+  }
+
   /* 요약 */
   .summary-bar{
     display:grid;
@@ -451,6 +522,8 @@
       </div>
     </div>
 
+    <button class="pdf-btn" id="pdfBtn">🖨️ 명부 PDF 내보내기</button>
+
     <div class="refresh-row">
       <button type="button" id="refreshBtn">↻ 새로고침</button>
     </div>
@@ -459,6 +532,24 @@
 
   </div>
 
+</div>
+
+<!-- 인쇄 전용 명부 (화면에는 안 보임) -->
+<div id="printArea">
+  <div class="print-title">축 의 금 명 부</div>
+  <div class="print-date" id="printDate"></div>
+  <table class="print-table">
+    <thead>
+      <tr>
+        <th style="width:8%">번 호</th>
+        <th style="width:22%">성 명</th>
+        <th style="width:25%">축 의 금</th>
+        <th style="width:45%">소속 및 비고</th>
+      </tr>
+    </thead>
+    <tbody id="printBody"></tbody>
+  </table>
+  <div class="print-summary" id="printSummary"></div>
 </div>
 
 <script>
@@ -700,6 +791,38 @@
   }
 
   document.getElementById('refreshBtn').addEventListener('click', loadList);
+
+  document.getElementById('pdfBtn').addEventListener('click', () => {
+    if (!currentData.length) { alert('명단이 없어요.'); return; }
+
+    // 날짜
+    const today = new Date();
+    const dateStr = today.getFullYear() + '년 ' + (today.getMonth()+1) + '월 ' + today.getDate() + '일';
+    document.getElementById('printDate').textContent = dateStr + ' 기준';
+
+    // 테이블 채우기
+    const tbody = document.getElementById('printBody');
+    tbody.innerHTML = '';
+    let totalAmt = 0;
+    currentData.forEach((row, i) => {
+      const amt = Number(row.amount) || 0;
+      totalAmt += amt;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td class="td-name">${escapeHtml(row.name || '')}</td>
+        <td class="td-amt">${amt ? Number(amt).toLocaleString('ko-KR') + '원' : ''}</td>
+        <td class="td-affil">${escapeHtml(row.affiliation || '')}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // 요약
+    document.getElementById('printSummary').textContent =
+      '총 ' + currentData.length + '명 · 합계 ' + totalAmt.toLocaleString('ko-KR') + '원';
+
+    window.print();
+  });
 
   renderAmount();
   renderTicket();
