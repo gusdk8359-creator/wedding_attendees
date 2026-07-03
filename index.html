@@ -648,27 +648,23 @@
         amount: amount,
         tickets: tickets
       });
-      await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-      setStatus('등록 확인 중...', '');
+      // 로컬 즉시 업데이트 (서버 응답 기다리지 않음)
+      const tempSeq = currentData.length ? Math.max(...currentData.map(r => Number(r.seq)||0)) + 1 : 1;
+      const newEntry = { seq: tempSeq, name, affiliation: affil, amount, tickets };
+      currentData = [...currentData, newEntry].sort((a,b) => (Number(a.seq)||0) - (Number(b.seq)||0));
+      renderSummary(currentData);
+      renderFullList(currentData);
+      renderRecent(currentData);
 
-      // 1.5초 후 목록 불러와서 방금 입력한 이름이 있는지 검증
-      await new Promise(r => setTimeout(r, 1500));
-      const verifyRes = await fetch(SHEET_API_URL + '?action=list', { method: 'GET' });
-      const verifyData = await verifyRes.json();
-      const found = Array.isArray(verifyData) && verifyData.some(r => r.name === name);
+      setStatus('등록되었습니다 🌿', 'ok');
+      inputName.value = ''; inputAffil.value = '';
+      amount = 0; tickets = 0;
+      renderAmount(); renderTicket();
 
-      if (found) {
-        setStatus('등록되었습니다 🌿', 'ok');
-        inputName.value = ''; inputAffil.value = '';
-        amount = 0; tickets = 0;
-        renderAmount(); renderTicket();
-        currentData = verifyData.sort((a,b) => (Number(a.seq)||0) - (Number(b.seq)||0));
-        renderSummary(currentData);
-        renderFullList(currentData);
-        renderRecent(currentData);
-      } else {
-        setStatus('등록에 실패했어요. 다시 시도해주세요 ⚠️', 'err');
-      }
+      // 백그라운드에서 서버 저장 + 3초 후 실제 데이터로 동기화
+      fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' })
+        .catch(() => setStatus('⚠️ 저장 실패. 다시 시도해주세요', 'err'));
+      setTimeout(() => loadList(), 3000);
     } catch(err) {
       setStatus('등록에 실패했어요. 다시 시도해주세요', 'err');
     } finally {
