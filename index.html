@@ -582,7 +582,7 @@
 </div>
 
 <script>
-  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbxixPqUO5DfFGrCZNQnfNcrrFM_igH19FtvTzq_G-189o9A7HMXZnGTKF6dQbdovWs2eA/exec";
+  const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwyNnFv-eAw0exEQjx1jWe_eq2FgWzDSwuqABW-_2u_XsmbLS5uwgMYGj7SfNllDrV3Hg/exec";
 
   const MAX_AMOUNT = 10000000;
   const MAX_TICKETS = 100;
@@ -722,15 +722,15 @@
     sumTix.textContent = totalTix.toLocaleString('ko-KR') + '장';
   }
 
-  // 등록탭 하단 최근 5건
+  // 등록탭 하단 최근 5건 (최신순)
   function renderRecent(data) {
-    const recent = data.slice(0, 5);
+    const recent = data.slice(-5).reverse();
     if (!recent.length) {
       recentWrap.innerHTML = '<div class="empty">아직 등록된 명단이 없어요</div>';
       return;
     }
     recentWrap.innerHTML = '';
-    recent.forEach((row, i) => recentWrap.appendChild(buildEntryEl(row, i + 1)));
+    recent.forEach((row, i) => recentWrap.appendChild(buildEntryEl(row, data.indexOf(row) + 1)));
   }
 
   // 전체 명단 탭
