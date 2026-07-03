@@ -222,6 +222,29 @@
   }
   .pdf-btn:active{ background:var(--rose-tint); }
 
+  /* 토스트 팝업 */
+  .toast{
+    position:fixed;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:#3A3532;
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    padding:12px 24px;
+    border-radius:24px;
+    opacity:0;
+    transition:opacity .25s, transform .25s;
+    z-index:999;
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
   /* 인쇄 전용 명부 */
   #printArea{ display:none; }
 
@@ -537,6 +560,9 @@
 
 </div>
 
+<!-- 토스트 팝업 -->
+<div class="toast" id="toast"></div>
+
 <!-- 인쇄 전용 명부 (화면에는 안 보임) -->
 <div id="printArea">
   <div class="print-title">축 의 금 명 부</div>
@@ -785,17 +811,25 @@
     window.addEventListener('mouseup', onEnd);
   }
 
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
   async function deleteEntry(row) {
     if (!confirm(row.name + '님 명단을 삭제할까요?')) return;
     currentData = currentData.filter(r => r.seq !== row.seq);
     renderSummary(currentData);
     renderFullList(currentData);
     renderRecent(currentData);
+    showToast('삭제되었습니다 🗑️');
     try {
       const params = new URLSearchParams({ action: 'delete', seq: row.seq });
       await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
     } catch(err) {
-      alert('삭제 처리 중 오류가 발생했어요. 새로고침 후 다시 확인해주세요');
+      showToast('⚠️ 삭제 중 오류가 발생했어요');
       await loadList();
     }
   }
