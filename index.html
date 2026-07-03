@@ -500,6 +500,9 @@
     </div>
 
     <div class="divider"><span>최근 등록</span></div>
+    <div class="refresh-row">
+      <button type="button" id="refreshRecentBtn">↻ 새로고침</button>
+    </div>
     <div id="recentWrap"><div class="empty">아직 등록된 명단이 없어요</div></div>
 
   </div>
@@ -802,6 +805,7 @@
   }
 
   document.getElementById('refreshBtn').addEventListener('click', loadList);
+  document.getElementById('refreshRecentBtn').addEventListener('click', loadList);
 
   document.getElementById('pdfBtn').addEventListener('click', () => {
     if (!currentData.length) { alert('명단이 없어요.'); return; }
