@@ -649,11 +649,26 @@
         tickets: tickets
       });
       await fetch(SHEET_API_URL + '?' + params.toString(), { method: 'GET', mode: 'no-cors' });
-      setStatus('등록되었습니다 🌿', 'ok');
-      inputName.value = ''; inputAffil.value = '';
-      amount = 0; tickets = 0;
-      renderAmount(); renderTicket();
-      await loadList();
+      setStatus('등록 확인 중...', '');
+
+      // 1.5초 후 목록 불러와서 방금 입력한 이름이 있는지 검증
+      await new Promise(r => setTimeout(r, 1500));
+      const verifyRes = await fetch(SHEET_API_URL + '?action=list', { method: 'GET' });
+      const verifyData = await verifyRes.json();
+      const found = Array.isArray(verifyData) && verifyData.some(r => r.name === name);
+
+      if (found) {
+        setStatus('등록되었습니다 🌿', 'ok');
+        inputName.value = ''; inputAffil.value = '';
+        amount = 0; tickets = 0;
+        renderAmount(); renderTicket();
+        currentData = verifyData.sort((a,b) => (Number(a.seq)||0) - (Number(b.seq)||0));
+        renderSummary(currentData);
+        renderFullList(currentData);
+        renderRecent(currentData);
+      } else {
+        setStatus('등록에 실패했어요. 다시 시도해주세요 ⚠️', 'err');
+      }
     } catch(err) {
       setStatus('등록에 실패했어요. 다시 시도해주세요', 'err');
     } finally {
